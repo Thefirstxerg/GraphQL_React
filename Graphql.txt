@@ -1,0 +1,118 @@
+/////////////////////////////
+	   MUTATIONS
+/////////////////////////////
+
+mutation {
+  createEvent(eventInput: {
+    title: "Sample Event"
+    description: "This is a test event"
+    price: 19.99
+    date: "2025-07-06T12:00:00.000Z"
+  }) {
+    _id
+    title
+    description
+    price
+    date
+    creator {
+      _id
+      email
+    }
+  }
+}
+
+-------------------------------
+
+mutation {
+  createUser(userInput: {
+    email: "test@example.com"
+    password: "yourpassword"
+  }) {
+    _id
+    email
+  }
+}
+
+-------------------------------
+
+mutation {
+  bookEvent(eventId: "EVENT_ID_HERE") {
+    _id
+    createdAt
+    updatedAt
+    event {
+      _id
+      title
+    }
+    user {
+      _id
+      email
+    }
+  }
+}
+
+-------------------------------
+
+mutation {
+  cancelBooking(bookingId: "BOOKING_ID_HERE") {
+    _id
+    title
+    description
+    price
+    date
+    creator {
+      _id
+      email
+    }
+  }
+}
+
+-------------------------------
+
+/////////////////////////////
+	   QUERIES
+/////////////////////////////
+
+query {
+  events {
+    _id
+    title
+    description
+    price
+    date
+    creator {
+      _id
+      email
+    }
+  }
+}
+
+-------------------------------
+
+query {
+  bookings {
+    _id
+    event {
+      _id
+      title
+    }
+    user {
+      _id
+      email
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+-------------------------------
+
+query {
+  login(email: "test@example.com", password: "yourpassword") {
+    userId
+    token
+    tokenExpiration
+  }
+}
+
+-------------------------------
