@@ -1,28 +1,44 @@
 import React, { Component } from 'react';
 import './Auth.css';
 import AuthContext from '../context/auth-context';
+
 class AuthPage extends Component {
+  // Local state to track if the form is in login or signup mode
   state = {
     isLogin: true
   };
+
+  // Set the context type to access AuthContext
   static contextType = AuthContext;
+
   constructor(props) {
     super(props);
+    // Create refs to access the input values directly
     this.emailEl = React.createRef();
     this.passwordEl = React.createRef();
   }
+
+  // Toggle between login and signup modes
   switchModeHandler = () => {
     this.setState(prevState => {
       return { isLogin: !prevState.isLogin };
     });
   };
+
+  // Handle form submission for login/signup
   submitHandler = event => {
-    event.preventDefault();
+    event.preventDefault(); // Prevent default form submission
+
+    // Get input values from refs
     const email = this.emailEl.current.value;
     const password = this.passwordEl.current.value;
+
+    // Basic validation: check for empty fields
     if (email.trim().length === 0 || password.trim().length === 0) {
       return;
     }
+
+    // Prepare GraphQL request body for login by default
     let requestBody = {
       query: `
         query Login($email: String!, $password: String!) {
@@ -38,6 +54,8 @@ class AuthPage extends Component {
         password: password
       }
     };
+
+    // If in signup mode, change the request to a mutation
     if (!this.state.isLogin) {
       requestBody = {
         query: `
@@ -54,6 +72,8 @@ class AuthPage extends Component {
         }
       };
     }
+
+    // Send the request to the backend GraphQL endpoint
     fetch('http://localhost:8000/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
@@ -62,14 +82,17 @@ class AuthPage extends Component {
       }
     })
       .then(res => {
+        // Check for successful response
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Failed!');
         }
         return res.json();
       })
       .then(resData => {
+        // Handle login response
         if (this.state.isLogin) {
           if (resData.data && resData.data.login && resData.data.login.token) {
+            // Call context login method to update auth state
             this.context.login(
               resData.data.login.token,
               resData.data.login.userId,
@@ -79,6 +102,7 @@ class AuthPage extends Component {
             alert('Login failed! Please check your credentials.');
           }
         } else {
+          // Handle signup response
           if (resData.data && resData.data.createUser) {
             alert('Signup successful! You can now log in.');
             this.setState({ isLogin: true }); // Switch to login mode
@@ -88,23 +112,29 @@ class AuthPage extends Component {
         }
       })
       .catch(err => {
+        // Handle network or server errors
         console.log(err);
         alert('Something went wrong. Please try again.');
       });
   };
+
   render() {
     return (
       <form className="auth-form" onSubmit={this.submitHandler}>
         <div className="form-control">
           <label htmlFor="email">E-Mail</label>
+          {/* Email input field */}
           <input type="email" id="email" ref={this.emailEl} />
         </div>
         <div className="form-control">
           <label htmlFor="password">Password</label>
+          {/* Password input field */}
           <input type="password" id="password" ref={this.passwordEl} />
         </div>
         <div className="form-actions">
+          {/* Submit button changes text based on mode */}
           <button type="submit">{this.state.isLogin ? 'Login' : 'Signup'}</button>
+          {/* Button to switch between login and signup */}
           <button type="button" onClick={this.switchModeHandler}>
             Switch to {this.state.isLogin ? 'Signup' : 'Login'}
           </button>
@@ -113,4 +143,5 @@ class AuthPage extends Component {
     );
   }
 }
+
 export default AuthPage;

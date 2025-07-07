@@ -1,46 +1,62 @@
 import React, { Component } from 'react';
 
+// Custom UI Components
 import Modal from '../components/Modal/Modal';
 import Backdrop from '../components/Backdrop/Backdrop';
 import EventList from '../components/Events/EventList/EventList';
 import Spinner from '../components/Spinner/Spinner';
+
+// Context for user authentication (token & userId)
 import AuthContext from '../context/auth-context';
+
 import './Events.css';
 
 class EventsPage extends Component {
+  // Initial component state
   state = {
-    creating: false,
-    events: [],
-    isLoading: false,
-    selectedEvent: null
+    creating: false,         // Whether the "Create Event" modal is open
+    events: [],              // All events fetched from the backend
+    isLoading: false,        // Spinner toggle for loading state
+    selectedEvent: null      // Stores selected event for detail modal
   };
+
+  // Used to prevent state updates on unmounted component
   isActive = true;
 
+  // Enables this.context to access AuthContext
   static contextType = AuthContext;
 
   constructor(props) {
     super(props);
+
+    // Refs for grabbing values from uncontrolled form fields
     this.titleElRef = React.createRef();
     this.priceElRef = React.createRef();
     this.dateElRef = React.createRef();
     this.descriptionElRef = React.createRef();
   }
 
+  // Called when component is mounted
   componentDidMount() {
-    this.fetchEvents();
+    this.fetchEvents(); // Load all events from backend
   }
 
+  // Triggered when "Create Event" is clicked
   startCreateEventHandler = () => {
     this.setState({ creating: true });
   };
 
+  // Submits the form from the "Add Event" modal
   modalConfirmHandler = () => {
     this.setState({ creating: false });
+
+    // Grab form input values
     const title = this.titleElRef.current.value;
     const price = +this.priceElRef.current.value;
     const date = this.dateElRef.current.value;
     const description = this.descriptionElRef.current.value;
 
+    // Simple validation
     if (
       title.trim().length === 0 ||
       price <= 0 ||
@@ -50,31 +66,34 @@ class EventsPage extends Component {
       return;
     }
 
+    // Event data to send
     const event = { title, price, date, description };
     console.log(event);
 
+    // GraphQL mutation with variables
     const requestBody = {
       query: `
-          mutation CreateEvent($title: String!, $desc: String!, $price: Float!, $date: String!) {
-            createEvent(eventInput: {title: $title, description: $desc, price: $price, date: $date}) {
-              _id
-              title
-              description
-              date
-              price
-            }
+        mutation CreateEvent($title: String!, $desc: String!, $price: Float!, $date: String!) {
+          createEvent(eventInput: {title: $title, description: $desc, price: $price, date: $date}) {
+            _id
+            title
+            description
+            date
+            price
           }
-        `,
-        variables: {
-          title: title,
-          desc: description,
-          price: price,
-          date: date
         }
+      `,
+      variables: {
+        title: title,
+        desc: description,
+        price: price,
+        date: date
+      }
     };
 
     const token = this.context.token;
 
+    // Send request to backend
     fetch('http://localhost:8000/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
@@ -90,6 +109,7 @@ class EventsPage extends Component {
         return res.json();
       })
       .then(resData => {
+        // Append new event to local state
         this.setState(prevState => {
           const updatedEvents = [...prevState.events];
           updatedEvents.push({
@@ -110,36 +130,37 @@ class EventsPage extends Component {
       });
   };
 
+  // Cancel both create and view modals
   modalCancelHandler = () => {
     this.setState({ creating: false, selectedEvent: null });
   };
 
+  // Fetch all events from backend
   fetchEvents() {
     this.setState({ isLoading: true });
+
     const requestBody = {
       query: `
-          query {
-            events {
+        query {
+          events {
+            _id
+            title
+            description
+            date
+            price
+            creator {
               _id
-              title
-              description
-              date
-              price
-              creator {
-                _id
-                email
-              }
+              email
             }
           }
-        `
+        }
+      `
     };
 
     fetch('http://localhost:8000/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Content-Type': 'application/json' }
     })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -161,6 +182,7 @@ class EventsPage extends Component {
       });
   }
 
+  // Show event detail modal
   showDetailHandler = eventId => {
     this.setState(prevState => {
       const selectedEvent = prevState.events.find(e => e._id === eventId);
@@ -168,25 +190,26 @@ class EventsPage extends Component {
     });
   };
 
+  // Book an event for the logged-in user
   bookEventHandler = () => {
     if (!this.context.token) {
       this.setState({ selectedEvent: null });
       return;
     }
-    console.log(this.state.selectedEvent)
+
     const requestBody = {
       query: `
-          mutation BookEvent($id: ID!) {
-            bookEvent(eventId: $id) {
-              _id
-             createdAt
-             updatedAt
-            }
+        mutation BookEvent($id: ID!) {
+          bookEvent(eventId: $id) {
+            _id
+            createdAt
+            updatedAt
           }
-        `,
-        variables: {
-          id: this.state.selectedEvent._id
         }
+      `,
+      variables: {
+        id: this.state.selectedEvent._id
+      }
     };
 
     fetch('http://localhost:8000/graphql', {
@@ -212,6 +235,7 @@ class EventsPage extends Component {
       });
   };
 
+  // Prevent setting state after unmount
   componentWillUnmount() {
     this.isActive = false;
   }
@@ -219,7 +243,10 @@ class EventsPage extends Component {
   render() {
     return (
       <React.Fragment>
+        {/* Show backdrop if a modal is open */}
         {(this.state.creating || this.state.selectedEvent) && <Backdrop />}
+
+        {/* "Create Event" modal */}
         {this.state.creating && (
           <Modal
             title="Add Event"
@@ -244,15 +271,13 @@ class EventsPage extends Component {
               </div>
               <div className="form-control">
                 <label htmlFor="description">Description</label>
-                <textarea
-                  id="description"
-                  rows="4"
-                  ref={this.descriptionElRef}
-                />
+                <textarea id="description" rows="4" ref={this.descriptionElRef} />
               </div>
             </form>
           </Modal>
         )}
+
+        {/* "Event Details" modal */}
         {this.state.selectedEvent && (
           <Modal
             title={this.state.selectedEvent.title}
@@ -270,6 +295,8 @@ class EventsPage extends Component {
             <p>{this.state.selectedEvent.description}</p>
           </Modal>
         )}
+
+        {/* Button to trigger event creation if logged in */}
         {this.context.token && (
           <div className="events-control">
             <p>Share your own Events!</p>
@@ -278,6 +305,8 @@ class EventsPage extends Component {
             </button>
           </div>
         )}
+
+        {/* Spinner while loading, otherwise list events */}
         {this.state.isLoading ? (
           <Spinner />
         ) : (
