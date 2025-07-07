@@ -14,7 +14,8 @@ module.exports = {
       throw err;
     }
   },
-  createEvent: async (args, req) => {
+  createEvent: async (args, context) => {
+    const req = context.req;
     if (!req.isAuth) {
       throw new Error('Unauthenticated!');
     }

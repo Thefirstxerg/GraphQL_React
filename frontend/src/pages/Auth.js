@@ -1,36 +1,28 @@
 import React, { Component } from 'react';
-
 import './Auth.css';
 import AuthContext from '../context/auth-context';
-
 class AuthPage extends Component {
   state = {
     isLogin: true
   };
-
   static contextType = AuthContext;
-
   constructor(props) {
     super(props);
     this.emailEl = React.createRef();
     this.passwordEl = React.createRef();
   }
-
   switchModeHandler = () => {
     this.setState(prevState => {
       return { isLogin: !prevState.isLogin };
     });
   };
-
   submitHandler = event => {
     event.preventDefault();
     const email = this.emailEl.current.value;
     const password = this.passwordEl.current.value;
-
     if (email.trim().length === 0 || password.trim().length === 0) {
       return;
     }
-
     let requestBody = {
       query: `
         query Login($email: String!, $password: String!) {
@@ -46,7 +38,6 @@ class AuthPage extends Component {
         password: password
       }
     };
-
     if (!this.state.isLogin) {
       requestBody = {
         query: `
@@ -63,7 +54,6 @@ class AuthPage extends Component {
         }
       };
     }
-
     fetch('http://localhost:8000/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
@@ -78,19 +68,30 @@ class AuthPage extends Component {
         return res.json();
       })
       .then(resData => {
-        if (resData.data.login.token) {
-          this.context.login(
-            resData.data.login.token,
-            resData.data.login.userId,
-            resData.data.login.tokenExpiration
-          );
+        if (this.state.isLogin) {
+          if (resData.data && resData.data.login && resData.data.login.token) {
+            this.context.login(
+              resData.data.login.token,
+              resData.data.login.userId,
+              resData.data.login.tokenExpiration
+            );
+          } else {
+            alert('Login failed! Please check your credentials.');
+          }
+        } else {
+          if (resData.data && resData.data.createUser) {
+            alert('Signup successful! You can now log in.');
+            this.setState({ isLogin: true }); // Switch to login mode
+          } else {
+            alert('Signup failed! Please try again.');
+          }
         }
       })
       .catch(err => {
         console.log(err);
+        alert('Something went wrong. Please try again.');
       });
   };
-
   render() {
     return (
       <form className="auth-form" onSubmit={this.submitHandler}>
@@ -103,7 +104,7 @@ class AuthPage extends Component {
           <input type="password" id="password" ref={this.passwordEl} />
         </div>
         <div className="form-actions">
-          <button type="submit">Submit</button>
+          <button type="submit">{this.state.isLogin ? 'Login' : 'Signup'}</button>
           <button type="button" onClick={this.switchModeHandler}>
             Switch to {this.state.isLogin ? 'Signup' : 'Login'}
           </button>
@@ -112,5 +113,4 @@ class AuthPage extends Component {
     );
   }
 }
-
 export default AuthPage;

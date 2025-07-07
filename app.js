@@ -25,11 +25,14 @@ app.use(isAuth);
 
 app.use(
   '/graphql',
-  graphqlHTTP({
+  graphqlHTTP((req) => ({
     schema: graphQlSchema,
     rootValue: graphQlResolvers,
-    graphiql: true
-  })
+    graphiql: {
+      headerEditorEnabled: true // Enables the headers editor in GraphiQL
+    },
+    context: { req }
+  }))
 );
 
 mongoose
