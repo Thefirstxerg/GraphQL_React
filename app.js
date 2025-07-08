@@ -31,7 +31,7 @@ app.use(
     graphiql: {
       headerEditorEnabled: true // Enables the headers editor in GraphiQL
     },
-    context: { req }
+    context: { req } // Is needed 
   }))
 );
 
