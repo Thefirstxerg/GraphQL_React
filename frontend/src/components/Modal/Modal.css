@@ -1,37 +1,75 @@
 .modal {
   width: 90%;
+  max-width: 500px;
   background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   position: fixed;
-  top: 20vh;
-  left: 5%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 100;
+  border-radius: 12px;
+  overflow: hidden;
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .modal__header {
-  padding: 1rem;
-  background: #5101d1;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #5101d1 0%, #6219d6 100%);
   color: white;
 }
 
 .modal__header h1 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .modal__content {
-  padding: 1rem;
+  padding: 2rem;
 }
 
 .modal__actions {
   display: flex;
   justify-content: flex-end;
-  padding: 1rem;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
 }
 
-@media (min-width: 768px) {
+.modal__actions .btn {
+  margin-right: 0;
+}
+
+@media (max-width: 768px) {
   .modal {
-    width: 30rem;
-    left: calc((100% - 30rem) / 2);
+    width: 95%;
+    top: 20vh;
+    transform: translate(-50%, 0);
+  }
+  
+  .modal__content {
+    padding: 1.5rem;
+  }
+  
+  .modal__actions {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .modal__actions .btn {
+    width: 100%;
   }
 }

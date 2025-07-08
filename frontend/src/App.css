@@ -1,3 +1,21 @@
 .main-content {
-  margin: 4rem 2.5rem;
+  margin: 5rem 2rem 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin: 4rem 1rem 2rem;
+    padding: 0 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    margin: 4rem 0.5rem 2rem;
+    padding: 0;
+  }
 }
