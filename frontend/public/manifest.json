@@ -1,6 +1,7 @@
 {
   "short_name": "EasyEvent",
   "name": "EasyEvent - GraphQL Event Management",
+  "description": "A modern GraphQL-powered event management application",
   "icons": [
     {
       "src": "favicon.ico",
@@ -11,5 +12,8 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#5101d1",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "categories": ["business", "productivity", "social"],
+  "lang": "en",
+  "orientation": "portrait-primary"
 }
