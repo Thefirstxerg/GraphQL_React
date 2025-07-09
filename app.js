@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { graphqlHTTP } = require('express-graphql');
+const { createHandler } = require('graphql-http/lib/use/express');
 const mongoose = require('mongoose');
 
 const graphQlSchema = require('./graphql/schema/index');
@@ -25,14 +25,11 @@ app.use(isAuth);
 
 app.use(
   '/graphql',
-  graphqlHTTP((req) => ({
+  createHandler({
     schema: graphQlSchema,
     rootValue: graphQlResolvers,
-    graphiql: {
-      headerEditorEnabled: true // Enables the headers editor in GraphiQL
-    },
-    context: { req } // Is needed 
-  }))
+    context: (req) => ({ req })
+  })
 );
 
 mongoose
