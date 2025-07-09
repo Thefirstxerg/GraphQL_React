@@ -15,7 +15,7 @@ type Event {
   description: String!
   price: Float!
   date: String!
-  creator: User!
+  creator: User
 }
 
 type User {

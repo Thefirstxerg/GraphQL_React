@@ -100,6 +100,7 @@ class AuthPage extends Component {
               resData.data.login.tokenExpiration
             );
           } else {
+            console.error('Login failed:', resData);
             alert('Login failed! Please check your credentials.');
           }
         } else {

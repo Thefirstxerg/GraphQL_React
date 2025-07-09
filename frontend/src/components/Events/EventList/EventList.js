@@ -5,6 +5,11 @@ import './EventList.css';
 
 const eventList = props => {
   const events = props.events.map(event => {
+    // Check if the current user has booked this event
+    const isBooked = props.userBookings && props.userBookings.some(booking => 
+      booking.event && booking.event._id === event._id
+    );
+
     return (
       <EventItem
         key={event._id}
@@ -13,7 +18,8 @@ const eventList = props => {
         price={event.price}
         date={event.date}
         userId={props.authUserId}
-        creatorId={event.creator._id}
+        creatorId={event.creator ? event.creator._id : null}
+        isBooked={isBooked}
         onDetail={props.onViewDetail}
       />
     );

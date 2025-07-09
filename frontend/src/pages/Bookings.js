@@ -22,6 +22,7 @@ class BookingsPage extends Component {
 
   fetchBookings = () => {
     this.setState({ isLoading: true });
+    
     const requestBody = {
       query: `
           query {
@@ -54,11 +55,16 @@ class BookingsPage extends Component {
         return res.json();
       })
       .then(resData => {
-        const bookings = resData.data.bookings;
-        this.setState({ bookings: bookings, isLoading: false });
+        if (resData.data && resData.data.bookings) {
+          const bookings = resData.data.bookings;
+          this.setState({ bookings: bookings, isLoading: false });
+        } else {
+          console.error('No bookings data received:', resData);
+          this.setState({ bookings: [], isLoading: false });
+        }
       })
       .catch(err => {
-        console.log(err);
+        console.log('Bookings fetch error:', err);
         this.setState({ isLoading: false });
       });
   };

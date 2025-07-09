@@ -18,7 +18,8 @@ class EventsPage extends Component {
     creating: false,         // Whether the "Create Event" modal is open
     events: [],              // All events fetched from the backend
     isLoading: false,        // Spinner toggle for loading state
-    selectedEvent: null      // Stores selected event for detail modal
+    selectedEvent: null,     // Stores selected event for detail modal
+    userBookings: []         // User's bookings to check booking status
   };
 
   // Used to prevent state updates on unmounted component
@@ -40,6 +41,9 @@ class EventsPage extends Component {
   // Called when component is mounted
   componentDidMount() {
     this.fetchEvents(); // Load all events from backend
+    if (this.context.token) {
+      this.fetchUserBookings(); // Load user's bookings if authenticated
+    }
   }
 
   // Triggered when "Create Event" is clicked
@@ -110,21 +114,26 @@ class EventsPage extends Component {
         return res.json();
       })
       .then(resData => {
-        // Append new event to local state
-        this.setState(prevState => {
-          const updatedEvents = [...prevState.events];
-          updatedEvents.push({
-            _id: resData.data.createEvent._id,
-            title: resData.data.createEvent.title,
-            description: resData.data.createEvent.description,
-            date: resData.data.createEvent.date,
-            price: resData.data.createEvent.price,
-            creator: {
-              _id: this.context.userId
-            }
+        console.log('Create Event API Response:', resData);
+        if (resData.data && resData.data.createEvent) {
+          // Append new event to local state
+          this.setState(prevState => {
+            const updatedEvents = [...prevState.events];
+            updatedEvents.push({
+              _id: resData.data.createEvent._id,
+              title: resData.data.createEvent.title,
+              description: resData.data.createEvent.description,
+              date: resData.data.createEvent.date,
+              price: resData.data.createEvent.price,
+              creator: {
+                _id: this.context.userId
+              }
+            });
+            return { events: updatedEvents };
           });
-          return { events: updatedEvents };
-        });
+        } else {
+          console.error('Error creating event:', resData);
+        }
       })
       .catch(err => {
         console.log(err);
@@ -170,15 +179,83 @@ class EventsPage extends Component {
         return res.json();
       })
       .then(resData => {
-        const events = resData.data.events;
-        if (this.isActive) {
-          this.setState({ events: events, isLoading: false });
+        console.log('Events API Response:', resData);
+        if (resData.errors) {
+          console.error('GraphQL Errors:', resData.errors);
+          resData.errors.forEach(error => {
+            console.error('Error message:', error.message);
+            console.error('Error details:', error);
+          });
+        }
+        if (resData.data && resData.data.events) {
+          const events = resData.data.events;
+          if (this.isActive) {
+            this.setState({ events: events, isLoading: false });
+          }
+        } else {
+          console.error('No events data received:', resData);
+          if (this.isActive) {
+            this.setState({ events: [], isLoading: false });
+          }
         }
       })
       .catch(err => {
-        console.log(err);
+        console.log('Events fetch error:', err);
         if (this.isActive) {
           this.setState({ isLoading: false });
+        }
+      });
+  }
+
+  // Fetch user's bookings to determine which events are already booked
+  fetchUserBookings = () => {
+    if (!this.context.token) {
+      return; // Skip if not authenticated
+    }
+
+    const requestBody = {
+      query: `
+        query {
+          bookings {
+            _id
+            event {
+              _id
+            }
+          }
+        }
+      `
+    };
+
+    fetch(config.apiUrl, {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + this.context.token
+      }
+    })
+      .then(res => {
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error('Failed!');
+        }
+        return res.json();
+      })
+      .then(resData => {
+        if (resData.data && resData.data.bookings) {
+          const bookings = resData.data.bookings;
+          if (this.isActive) {
+            this.setState({ userBookings: bookings });
+          }
+        } else {
+          if (this.isActive) {
+            this.setState({ userBookings: [] });
+          }
+        }
+      })
+      .catch(err => {
+        console.log('User bookings fetch error:', err);
+        if (this.isActive) {
+          this.setState({ userBookings: [] });
         }
       });
   }
@@ -229,6 +306,10 @@ class EventsPage extends Component {
       })
       .then(resData => {
         console.log(resData);
+        if (resData.data && resData.data.bookEvent) {
+          // Refresh user bookings to update the UI
+          this.fetchUserBookings();
+        }
         this.setState({ selectedEvent: null });
       })
       .catch(err => {
@@ -283,7 +364,9 @@ class EventsPage extends Component {
           <Modal
             title={this.state.selectedEvent.title}
             canCancel
-            canConfirm
+            canConfirm={this.context.token && !this.state.userBookings.some(booking => 
+              booking.event && booking.event._id === this.state.selectedEvent._id
+            )}
             onCancel={this.modalCancelHandler}
             onConfirm={this.bookEventHandler}
             confirmText={this.context.token ? 'Book' : 'Confirm'}
@@ -314,6 +397,7 @@ class EventsPage extends Component {
           <EventList
             events={this.state.events}
             authUserId={this.context.userId}
+            userBookings={this.state.userBookings}
             onViewDetail={this.showDetailHandler}
           />
         )}

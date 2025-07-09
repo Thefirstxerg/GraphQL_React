@@ -5,13 +5,32 @@ const User = require('../../models/user');   // User Mongoose model
 const { dateToString } = require('../../helpers/date'); // Helper to format dates
 
 // DataLoader to cache and batch event requests
-const eventLoader = new DataLoader(eventIds => {
-  return events(eventIds); // This will call the 'events' function with a list of event IDs
+const eventLoader = new DataLoader(async eventIds => {
+  try {
+    const events = await Event.find({ _id: { $in: eventIds } }); // Get matching events from DB
+
+    // Return events in the same order as eventIds, ensuring same length
+    return eventIds.map(id => {
+      const event = events.find(event => event._id.toString() === id.toString());
+      return event ? transformEvent(event) : null;
+    });
+  } catch (err) {
+    throw err;
+  }
 });
 
 // DataLoader to cache and batch user requests
-const userLoader = new DataLoader(userIds => {
-  return User.find({ _id: { $in: userIds } }); // Find all users whose IDs are in the userIds array
+const userLoader = new DataLoader(async userIds => {
+  try {
+    const users = await User.find({ _id: { $in: userIds } }); // Find all users whose IDs are in the userIds array
+    
+    // Sort users to match the order of userIds and ensure same length
+    return userIds.map(id => {
+      return users.find(user => user._id.toString() === id.toString()) || null;
+    });
+  } catch (err) {
+    throw err;
+  }
 });
 
 // Function to fetch and transform multiple events based on their IDs
@@ -19,17 +38,11 @@ const events = async eventIds => {
   try {
     const events = await Event.find({ _id: { $in: eventIds } }); // Get matching events from DB
 
-    // Sort the events to match the order of eventIds
-    events.sort((a, b) => {
-      return (
-        eventIds.indexOf(a._id.toString()) - eventIds.indexOf(b._id.toString())
-      );
-    });
-
-    // Transform each event before returning
-    return events.map(event => {
-      return transformEvent(event);
-    });
+    // Return events in the same order as eventIds
+    return eventIds.map(id => {
+      const event = events.find(event => event._id.toString() === id.toString());
+      return event ? transformEvent(event) : null;
+    }).filter(event => event !== null); // Remove null entries for this function
   } catch (err) {
     throw err; // Re-throw error if something goes wrong
   }
@@ -49,6 +62,9 @@ const singleEvent = async eventId => {
 const user = async userId => {
   try {
     const user = await userLoader.load(userId.toString()); // Load user by ID
+    if (!user) {
+      return null; // Return null if user not found
+    }
     return {
       ...user._doc, // Spread the user document fields
       _id: user.id,
@@ -67,7 +83,7 @@ const transformEvent = event => {
     ...event._doc, // Spread all fields from the Mongoose document
     _id: event.id,
     date: dateToString(event._doc.date), // Convert date to string
-    creator: user.bind(this, event.creator) // Lazily load creator data using 'user' function
+    creator: event.creator ? user.bind(this, event.creator) : () => null // Lazily load creator data using 'user' function, or return null if no creator
   };
 };
 

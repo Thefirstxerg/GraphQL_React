@@ -23,12 +23,17 @@ app.use((req, res, next) => {
 
 app.use(isAuth);
 
+// Test endpoint to verify server is working
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is working!', timestamp: new Date() });
+});
+
 app.use(
   '/graphql',
   createHandler({
     schema: graphQlSchema,
     rootValue: graphQlResolvers,
-    context: (req) => ({ req })
+    context: (req) => ({ req: req.raw })
   })
 );
 
@@ -39,8 +44,12 @@ mongoose
     }@cluster0.1wswiyv.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority&appName=Cluster0`
   )
   .then(() => {
-    app.listen(8000);
+    console.log('Connected to MongoDB successfully!');
+    app.listen(8000, () => {
+      console.log('Server is running on http://localhost:8000');
+      console.log('GraphQL endpoint: http://localhost:8000/graphql');
+    });
   })
   .catch(err => {
-    console.log(err);
+    console.log('MongoDB connection error:', err);
   });
