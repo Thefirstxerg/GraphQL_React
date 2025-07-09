@@ -45,9 +45,10 @@ mongoose
   )
   .then(() => {
     console.log('Connected to MongoDB successfully!');
-    app.listen(8000, () => {
-      console.log('Server is running on http://localhost:8000');
-      console.log('GraphQL endpoint: http://localhost:8000/graphql');
+    const port = process.env.PORT || 8000;
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+      console.log(`GraphQL endpoint: http://localhost:${port}/graphql`);
     });
   })
   .catch(err => {
