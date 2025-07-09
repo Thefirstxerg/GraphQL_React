@@ -1,3 +1,3 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/graphql';
+const API_URL = process.env.REACT_APP_API_URL || 'https://graphql-react-backend.onrender.com/graphql';
 
 export default API_URL;
