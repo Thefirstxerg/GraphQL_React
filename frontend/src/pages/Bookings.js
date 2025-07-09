@@ -5,7 +5,7 @@ import AuthContext from '../context/auth-context';
 import BookingList from '../components/Bookings/BookingList/BookingList';
 import BookingsChart from '../components/Bookings/BookingsChart/BookingsChart';
 import BookingsControls from '../components/Bookings/BookingsControls/BookingsControls';
-import API_URL from '../config/api';
+import config from '../config/config';
 
 class BookingsPage extends Component {
   state = {
@@ -39,7 +39,7 @@ class BookingsPage extends Component {
         `
     };
 
-    fetch(API_URL, {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
@@ -79,7 +79,7 @@ class BookingsPage extends Component {
       }
     };
 
-    fetch(API_URL, {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {

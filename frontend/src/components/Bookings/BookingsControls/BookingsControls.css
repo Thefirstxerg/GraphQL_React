@@ -1,23 +1,46 @@
 .bookings-control {
   text-align: center;
-  padding: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem;
 }
 
 .bookings-control button {
   font: inherit;
+  font-weight: 500;
   border: none;
   background: transparent;
-  color: black;
-  padding: 0.25rem 3rem;
-  border-bottom: 2px solid transparent;
+  color: #6b7280;
+  padding: 0.75rem 2rem;
+  border-bottom: 3px solid transparent;
   cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px 4px 0 0;
+  margin: 0 0.25rem;
 }
 
 .bookings-control button.active {
   border-bottom-color: #5101d1;
   color: #5101d1;
+  background-color: rgba(81, 1, 209, 0.05);
+  font-weight: 600;
+}
+
+.bookings-control button:hover:not(.active) {
+  color: #374151;
+  background-color: #f3f4f6;
 }
 
 .bookings-control button:focus {
   outline: none;
+  box-shadow: 0 0 0 3px rgba(81, 1, 209, 0.1);
+}
+
+@media (max-width: 768px) {
+  .bookings-control button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
 }

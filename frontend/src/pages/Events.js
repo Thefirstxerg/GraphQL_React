@@ -8,7 +8,7 @@ import Spinner from '../components/Spinner/Spinner';
 
 // Context for user authentication (token & userId)
 import AuthContext from '../context/auth-context';
-import API_URL from '../config/api';
+import config from '../config/config';
 
 import './Events.css';
 
@@ -95,7 +95,7 @@ class EventsPage extends Component {
     const token = this.context.token;
 
     // Send request to backend
-    fetch(API_URL, {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
@@ -158,7 +158,7 @@ class EventsPage extends Component {
       `
     };
 
-    fetch(API_URL, {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: { 'Content-Type': 'application/json' }
@@ -213,7 +213,7 @@ class EventsPage extends Component {
       }
     };
 
-    fetch(API_URL, {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {

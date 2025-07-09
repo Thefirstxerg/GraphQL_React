@@ -79,6 +79,12 @@ web_modules/
 .env.production.local
 .env.local
 
+# Frontend build directory
+frontend/build/
+
+# Production environment files
+.env.production
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
