@@ -8,6 +8,7 @@ import Spinner from '../components/Spinner/Spinner';
 
 // Context for user authentication (token & userId)
 import AuthContext from '../context/auth-context';
+import config from '../config/config';
 
 import './Events.css';
 
@@ -94,7 +95,7 @@ class EventsPage extends Component {
     const token = this.context.token;
 
     // Send request to backend
-    fetch('http://localhost:8000/graphql', {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
@@ -157,7 +158,7 @@ class EventsPage extends Component {
       `
     };
 
-    fetch('http://localhost:8000/graphql', {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: { 'Content-Type': 'application/json' }
@@ -212,7 +213,7 @@ class EventsPage extends Component {
       }
     };
 
-    fetch('http://localhost:8000/graphql', {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {

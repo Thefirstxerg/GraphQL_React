@@ -3,19 +3,23 @@
   left: 0;
   top: 0;
   width: 100%;
-  height: 3.5rem;
-  background: #5101d1;
+  height: 4rem;
+  background: linear-gradient(135deg, #5101d1 0%, #6219d6 100%);
   padding: 0 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .main-navigation__logo h1 {
   margin: 0;
-  font-size: 1.5rem;
-  color: #dfcefc;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.025em;
 }
 
 .main-navigation__items {
@@ -28,23 +32,28 @@
   padding: 0;
   margin: 0;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .main-navigation__items li {
-  margin: 0 1rem;
+  margin: 0;
 }
 
 .main-navigation__items a,
 .main-navigation__items button {
   text-decoration: none;
-  color: white;
-  padding: 0.25rem 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem 1rem;
   border: none;
   font: inherit;
+  font-weight: 500;
   background: transparent;
   cursor: pointer;
   vertical-align: middle;
   margin: 0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
 }
 
 .main-navigation__items a:hover,
@@ -52,7 +61,50 @@
 .main-navigation__items a.active,
 .main-navigation__items button:hover,
 .main-navigation__items button:active {
-  background: #ffffff;
-  color: #5101d1;
-  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.main-navigation__items a.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .main-navigation {
+    padding: 0 1rem;
+    height: 3.5rem;
+  }
+  
+  .main-navigation__logo h1 {
+    font-size: 1.5rem;
+  }
+  
+  .main-navigation__items ul {
+    gap: 0.25rem;
+  }
+  
+  .main-navigation__items a,
+  .main-navigation__items button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-navigation {
+    padding: 0 0.75rem;
+  }
+  
+  .main-navigation__logo h1 {
+    font-size: 1.25rem;
+  }
+  
+  .main-navigation__items a,
+  .main-navigation__items button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
 }

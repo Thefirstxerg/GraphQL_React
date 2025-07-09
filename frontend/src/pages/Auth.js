@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './Auth.css';
 import AuthContext from '../context/auth-context';
+import config from '../config/config';
 
 class AuthPage extends Component {
   // Local state to track if the form is in login or signup mode
@@ -74,7 +75,7 @@ class AuthPage extends Component {
     }
 
     // Send the request to the backend GraphQL endpoint
-    fetch('http://localhost:8000/graphql', {
+    fetch(config.apiUrl, {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
